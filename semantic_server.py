@@ -4,9 +4,12 @@ import argparse
 import getpass
 import hmac
 import ipaddress
+import json
 import os
 from pathlib import Path
 import sys
+import time
+from uuid import uuid4
 from threading import BoundedSemaphore
 from typing import Annotated
 
@@ -77,13 +80,25 @@ def create_app(*, evaluator=None, service_token=None):
 
     @app.post('/v1/tasks/willingness', response_model=TaskResult, dependencies=[Depends(authorize)])
     def willingness(body: WillingnessRequest):
+        request_id = uuid4().hex[:8]
+        started = time.perf_counter()
+        print(f'[{request_id}] 收到转写文字：{json.dumps(body.child_answer, ensure_ascii=False)}', flush=True)
+        print(f'[{request_id}] 本轮提示：{json.dumps(body.system_prompt, ensure_ascii=False)}', flush=True)
         if evaluator is None and body.child_answer.strip() and not os.getenv('ARK_API_KEY'):
+            print(f'[{request_id}] 识别失败：服务器尚未配置 ARK_API_KEY', flush=True)
             raise HTTPException(status_code=503, detail='服务器尚未配置 ARK_API_KEY')
         if not capacity.acquire(blocking=False):
+            print(f'[{request_id}] 请求未处理：服务器繁忙', flush=True)
             raise HTTPException(status_code=429, detail='服务器忙，请稍后重试')
         try:
-            return evaluate(body.child_answer, body.system_prompt)
+            result = evaluate(body.child_answer, body.system_prompt)
+            elapsed = time.perf_counter() - started
+            print(f'[{request_id}] 语义识别：{result.result}；'
+                  f'判断原因：{json.dumps(result.reason, ensure_ascii=False)}；'
+                  f'耗时：{elapsed:.2f} 秒', flush=True)
+            return result
         except Exception:
+            print(f'[{request_id}] 识别失败：语义模型调用失败；耗时：{time.perf_counter() - started:.2f} 秒', flush=True)
             # Never relay upstream error bodies, keys or child text in error details.
             raise HTTPException(status_code=502, detail='语义模型调用失败，请检查服务器配置或稍后重试') from None
         finally:
