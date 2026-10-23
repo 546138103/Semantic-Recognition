@@ -1,0 +1,42 @@
+# Python environments and generated caches
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Credentials and private local configuration
+.env
+.env.*
+!.env.example
+/secrets/
+/credentials/
+
+# Generated logs, outputs, models and local datasets
+*.log
+/logs/
+/outputs/
+/results/
+/models/
+/checkpoints/
+/data/
+/datasets/
+
+# Editors, OS metadata and Office lock files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+~$*
+
+# Python packaging output
+build/
+dist/
+*.egg-info/

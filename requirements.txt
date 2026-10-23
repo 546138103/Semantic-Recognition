@@ -1,0 +1,4 @@
+# Direct dependencies recorded from the existing Python 3.14 environment.
+openai==3.29.0
+pydantic==2.14.1
+arkruntime==0.11.0
