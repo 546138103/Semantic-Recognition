@@ -60,6 +60,7 @@ def evaluate_text(child_answer: str, system_prompt: str, task_rules: str) -> Tas
                    {'role': 'user', 'content': json.dumps(
                        {'child_answer': child_answer}, ensure_ascii=False)}],
             text_format=Assessment,
+            extra_body={"thinking": {"type": "disabled"}},
         )
     assessment = response.output_parsed
     if assessment is None:
