@@ -38,3 +38,7 @@ $env:ARK_API_KEY = '<your-api-key>'
 环境变量由脚本直接读取，当前代码没有自动加载 `.env` 的逻辑。请勿将真实 API Key 写入源码或提交到仓库。
 
 初始化验证：现有 7 项自动化测试通过；没有在此次仓库整理中修改任务判断代码或调用真实 API。
+
+## 作为 ASR 的语义服务器
+
+新增 semantic_server.py 和 start_semantic_server.cmd，默认监听 127.0.0.1:8765，接收 ASR 整句文字并调用 task3_willingness。方舟 API Key 仅在服务器配置，详见 [README_SERVER.md](README_SERVER.md)。
